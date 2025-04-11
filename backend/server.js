@@ -1684,9 +1684,9 @@ async function analyzeSentiment(content) {
 }
 
 app.get("/sentiment", async (req, res) => {
-  const { stockName } = req.query;
-  if (!stockName) {
-    return res.status(400).json({ error: "stockName is required" });
+  const { symbol } = req.query;
+  if (!symbol) {
+    return res.status(400).json({ error: "symbol is required" });
   }
 
   const today = new Date();
@@ -1694,7 +1694,7 @@ app.get("/sentiment", async (req, res) => {
   const fromDate = priorDate.toISOString().split("T")[0];
 
   const newsUrl = `https://newsapi.org/v2/everything?q=%22${encodeURIComponent(
-    stockName
+    symbol
   )}%22&from=${fromDate}&sortBy=publishedAt&pageSize=7&language=en&apiKey=${NEWS_API_KEY}`;
 
   try {
@@ -1726,7 +1726,7 @@ app.get("/sentiment", async (req, res) => {
 
     res.json({
       status: "ok",
-      stockName,
+      symbol,
       fromDate,
       totalResults: analysis.length,
       summary,
