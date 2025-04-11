@@ -23,21 +23,20 @@ const ROEChart = ({ symbol }) => {
         const res = await fetch(`http://localhost:5000/roe?symbol=${symbol}`);
         const data = await res.json();
 
-        const isValidData =
-          Array.isArray(data?.ROE) &&
-          Array.isArray(data?.years) &&
-          data.ROE.length > 0 &&
-          data.years.length > 0 &&
-          data.ROE.every((val) => val !== null && val !== undefined);
-
-        setRoeData(isValidData ? data : null);
+        if (data?.ROE?.length && data?.years?.length && data.ROE.length === data.years.length) {
+          setRoeData(data);
+        } else {
+          setRoeData(null);
+        }
       } catch (err) {
         console.error("Error fetching ROE:", err);
         setRoeData(null);
       }
     };
 
-    if (symbol) fetchROE();
+    if (symbol) {
+      fetchROE();
+    }
   }, [symbol]);
 
   if (!roeData) return null;
@@ -55,17 +54,17 @@ const ROEChart = ({ symbol }) => {
         label: "ROE (%)",
         data: ROE,
         fill: true,
-        borderColor: "#2e7d32",
+        borderColor: "#1976d2",
         backgroundColor: (context) => {
           const chart = context.chart;
           const { ctx, chartArea } = chart;
           if (!chartArea) return null;
           const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-          gradient.addColorStop(0, "rgba(46, 125, 50, 0.1)");
-          gradient.addColorStop(1, "rgba(46, 125, 50, 0.3)");
+          gradient.addColorStop(0, "rgba(25, 118, 210, 0.1)");
+          gradient.addColorStop(1, "rgba(25, 118, 210, 0.3)");
           return gradient;
         },
-        pointBackgroundColor: "#2e7d32",
+        pointBackgroundColor: "#1976d2",
         pointRadius: 5,
         pointHoverRadius: 7,
         tension: 0.4,
@@ -76,7 +75,7 @@ const ROEChart = ({ symbol }) => {
   const chartOptions = {
     responsive: true,
     animation: {
-      duration: 1000,
+      duration: 5000,
       easing: "easeOutQuart",
     },
     plugins: {

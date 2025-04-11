@@ -7,36 +7,47 @@ const SalesChart = ({ symbol }) => {
   const [profit, setProfit] = useState([]);
   const [years, setYears] = useState([]);
   const [error, setError] = useState(null);
+  const [attempt, setAttempt] = useState(0);
+
+  const maxRetries = 3;
+
+  const fetchFinancialData = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/scrape/${symbol}`);
+      if (!response.ok) throw new Error("API error");
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setSales(data.sales);
+      setProfit(data.profit);
+      setYears(data.years);
+      setError(null);
+    } catch (err) {
+      console.error(`❌ Attempt ${attempt + 1} failed:`, err.message);
+      if (attempt < maxRetries - 1) {
+        setTimeout(() => setAttempt((prev) => prev + 1), 1000 * (attempt + 1)); // retry with backoff
+      } else {
+        setError("Unable to load financial data after multiple attempts.");
+      }
+    }
+  };
 
   useEffect(() => {
-    const fetchFinancialData = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/scrape/${symbol}`);
-        const data = await response.json();
-
-        if (data.error) {
-          setError(data.error);
-        } else {
-          setSales(data.sales);
-          setProfit(data.profit);
-          setYears(data.years);
-        }
-      } catch (err) {
-        setError("Failed to fetch financial data");
-      }
-    };
-
     if (symbol) {
       fetchFinancialData();
     }
-  }, [symbol]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [symbol, attempt]);
 
   if (error) {
     return <div style={{ color: "red", fontWeight: "bold" }}>{error}</div>;
   }
 
   if (sales.length === 0 || profit.length === 0 || years.length === 0) {
-    return null; // Don’t show anything until data is ready
+    return null;
   }
 
   const calculateGrowthRate = (data) => {
@@ -48,12 +59,8 @@ const SalesChart = ({ symbol }) => {
     });
   };
 
-  const calculateProfitToSalesPercentage = () => {
-    return sales.map((sale, index) => {
-      if (sale === 0) return 0;
-      return ((profit[index] / sale) * 100).toFixed(2);
-    });
-  };
+  const calculateProfitToSalesPercentage = () =>
+    sales.map((sale, index) => (sale === 0 ? 0 : ((profit[index] / sale) * 100).toFixed(2)));
 
   const salesGrowthRate = calculateGrowthRate(sales);
   const profitGrowthRate = calculateGrowthRate(profit);
@@ -95,9 +102,7 @@ const SalesChart = ({ symbol }) => {
       },
     },
     scales: {
-      x: {
-        beginAtZero: true,
-      },
+      x: { beginAtZero: true },
       y: {
         beginAtZero: true,
         title: {

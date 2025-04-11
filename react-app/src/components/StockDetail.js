@@ -12,6 +12,14 @@ import SearchBarTop from "./SearchBarTop";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import ROEChart from "./ROEChart";
+import Equimeter from "./Equimeter";
+import News from "./News";
+import PriceToBook from "./PriceToBook";
+import PERatio from "./PERatio";
+import MarketCap from "./MarketCap";
+import FaceValue from "./FaceValue";
+import HighLow52Week from "./HighLow52Week";
+import BookValue from "./BookValue";
 
 const StockDetail = () => {
   const { name } = useParams();
@@ -94,6 +102,21 @@ const StockDetail = () => {
       <div ref={section1Ref} style={styles.container}>
         <StockInfo stockName={name} style={styles.card} />
         <StockPriceChart symbol={symbol} style={styles.card} />
+
+        {/* Row: PBV, PE, Market Cap */}
+        <div style={styles.row}>
+          <PriceToBook symbol={symbol} style={styles.card} />
+          <PERatio symbol={symbol} style={styles.card} />
+          <MarketCap symbol={symbol} style={styles.card} />
+        </div>
+
+        {/* Row: Book Value, Face Value, 52W High/Low */}
+        <div style={styles.row}>
+          <BookValue symbol={symbol} style={styles.card} />
+          <FaceValue symbol={symbol} style={styles.card} />
+          <HighLow52Week symbol={symbol} style={styles.card} />
+        </div>
+
         <SalesChart symbol={symbol} style={styles.card} />
         <BorrowInvest symbol={symbol} style={styles.card} />
       </div>
@@ -109,6 +132,8 @@ const StockDetail = () => {
       <div ref={section3Ref} style={styles.container}>
         <ROCEChart symbol={symbol} style={styles.card} />
         <ROEChart symbol={symbol} style={styles.card} />
+        <Equimeter symbol={symbol} stockName={name} style={styles.card} />
+        <News symbol={symbol} style={styles.card} />
       </div>
 
       {/* 📥 Download Button */}
@@ -139,9 +164,15 @@ const styles = {
     backgroundColor: "#f7f7f7",
     justifyContent: "center",
   },
+  row: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: "20px",
+  },
   card: {
     width: "100%",
-    maxWidth: "500px",
+    maxWidth: "220px",
     padding: "20px",
     backgroundColor: "#ffffff",
     borderRadius: "12px",

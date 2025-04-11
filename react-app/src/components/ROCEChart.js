@@ -76,7 +76,7 @@ const ROCEChart = ({ symbol }) => {
   const chartOptions = {
     responsive: true,
     animation: {
-      duration: 1000,
+      duration: 5000,
       easing: "easeOutQuart",
     },
     plugins: {
